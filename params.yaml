@@ -1,0 +1,11 @@
+data:
+  path: data/loan_approval_dataset.csv
+
+model:
+  random_state: 42
+  test_size: 0.2
+
+training:
+  model_name: RandomForestClassifier
+  n_estimators: 100
+  max_depth: 10

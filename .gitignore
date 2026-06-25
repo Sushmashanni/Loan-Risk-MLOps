@@ -4,3 +4,6 @@ mlruns/
 # data/*.csv
 .env
 *.pkl
+# Generated datasets
+data/train.csv
+data/test.csv
