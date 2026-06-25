@@ -1,5 +1,8 @@
 import joblib
 import pandas as pd
+import yaml
+import mlflow
+import mlflow.sklearn
 
 from sklearn.metrics import (
     accuracy_score,
@@ -11,6 +14,11 @@ from sklearn.metrics import (
 )
 
 
+def load_params():
+    with open("params.yaml", "r") as file:
+        return yaml.safe_load(file)
+
+
 def load_test_data():
     return pd.read_csv("data/test.csv")
 
@@ -20,6 +28,9 @@ def load_model():
 
 
 def main():
+
+    params = load_params()
+
     df = load_test_data()
 
     X_test = df.drop("loan_status", axis=1)
@@ -46,6 +57,46 @@ def main():
 
     print("\nClassification Report:\n")
     print(classification_report(y_test, predictions))
+
+    # -------------------------
+    # MLflow Logging
+    # -------------------------
+
+    mlflow.set_experiment("Loan Risk Prediction")
+
+    with mlflow.start_run():
+
+        mlflow.log_param(
+            "n_estimators",
+            params["training"]["n_estimators"]
+        )
+
+        mlflow.log_param(
+            "max_depth",
+            params["training"]["max_depth"]
+        )
+
+        mlflow.log_param(
+            "min_samples_split",
+            params["training"]["min_samples_split"]
+        )
+
+        mlflow.log_param(
+            "min_samples_leaf",
+            params["training"]["min_samples_leaf"]
+        )
+
+        mlflow.log_metric("accuracy", accuracy)
+        mlflow.log_metric("precision", precision)
+        mlflow.log_metric("recall", recall)
+        mlflow.log_metric("f1_score", f1)
+
+        mlflow.sklearn.log_model(
+            model,
+            artifact_path="model"
+        )
+
+        print("\nMLflow logging completed successfully.")
 
 
 if __name__ == "__main__":
